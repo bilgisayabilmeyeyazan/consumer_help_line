@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css">
+    <title>{% block title %}{% endblock %} | ConsumerHelpLine</title>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        body {
+            color: #010c80;
+        }
+        .card {
+            border: none;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+            background-color: #f8f9fa;
+            color: #212529;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        .card-title {
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .card-text {
+            color: #666;
+        }
+        .company-logo {
+            max-width: 100px;
+            max-height: 100px;
+            margin-top: 10px;
+        }
+
+        #flash-messages-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            max-width: 300px;
+        }
+    </style>
+</head>
+<body {% if request.path == '/' %}style="background-image: url('{{ url_for('static', filename='background.jpeg') }}');
+background-size: cover; background-repeat: no-repeat; background-position: center;"{% endif %}>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="{{ url_for('index') }}">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="ConsumerHelpLine Logo" height="130">
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <form class="form-inline my-2 my-lg-0 mx-auto" method="GET" action="{{ url_for('search_cases') }}">
+                <div class="input-group">
+                    <select name="company" id="company" class="form-control">
+                        <option value="">Select a company</option>
+                        {% for company in companies %}
+                            <option value="{{ company.username }}" {% if company.username == selected_company %}selected{% endif %}>{{ company.username }}</option>
+                        {% endfor %}
+                    </select>
+                    <input type="text" name="keyword" id="keyword" class="form-control" placeholder="Enter a keyword" value="{{ selected_keyword }}">
+                    <select name="status" id="status" class="form-control">
+                        <option value="">All</option>
+                        <option value="Approved" {% if selected_status == 'Approved' %}selected{% endif %}>Approved</option>
+                        <option value="Closed" {% if selected_status == 'Closed' %}selected{% endif %}>Closed</option>
+                        <option value="Resolved" {% if selected_status == 'Resolved' %}selected{% endif %}>Resolved</option>
+                    </select>
+                    <select name="sort_by" id="sort_by" class="form-control">
+                        <option value="">None</option>
+                        <option value="support_count" {% if selected_sort_by == 'support_count' %}selected{% endif %}>Support Count</option>
+                        <option value="comment_count" {% if selected_sort_by == 'comment_count' %}selected{% endif %}>Comment Count</option>
+                    </select>
+                    <div class="input-group-append">
+                        <button type="submit" class="btn btn-primary">Search</button>
+                    </div>
+                </div>
+            </form>
+            <ul class="navbar-nav ml-auto">
+                {% if 'logged_in' in session %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('mediators') }}">Mediators</a>
+                    </li>
+                    {% if session.logged_in and session.user_type == 'Admin' %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('review_cases') }}">Review Cases</a>
+                        </li>
+                    {% endif %}
+                    {% if session['user_type'] == 'Mediator' %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('mediator_profile') }}">Profile</a>
+                        </li>
+                    {% endif %}
+                     {% if session['user_type'] == 'Company' %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('company_profile') }}">Company Profile</a>
+                        </li>
+                    {% endif %}
+                    {% if session['user_type'] == 'Admin' %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('review_cases') }}">Review Cases</a>
+                        </li>
+                    {% endif %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+                    </li>
+                {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('login') }}">Login</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('register') }}">Register</a>
+                    </li>
+                {% endif %}
+            </ul>
+
+        </div>
+    </nav>
+
+   <div id="flash-messages-container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+</div>
+
+    <div class="container mt-4">
+        {% block content %}
+        <h1>Welcome to ConsumerAssist</h1>
+        {% if session.logged_in and session.user_type == 'Consumer' %}
+        <a href="{{ url_for('case_management') }}" class="btn btn-primary float-up">Submit a Case</a>
+        {% endif %}
+        <h2>Latest Cases</h2>
+        <div class="row">
+            {% for case in cases %}
+                <div class="col-md-4 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ case.title }}</h5>
+                            <p class="card-text">{{ case.description[:100] }}...</p>
+                            <p>Status: {{ case.status }}</p>
+                            {% if case.brand_name %}
+                                <p>Company: <a href="{{ url_for('company_details', username=case.brand_name) }}">{{ case.brand_name }}</a></p>
+                            {% endif %}
+                            <p>Submitted on: {{ case.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+                            {% if case.consumer_message %}
+                                <div class="card mt-3">
+                                    <div class="card-body {% if case.message_color == 'green' %}bg-success{% else %}bg-danger{% endif %} text-white">
+                                        <h5>Consumer Message:</h5>
+                                        <p class="card-text">{{ case.consumer_message }}</p>
+                                    </div>
+                                </div>
+                            {% endif %}
+                            <a href="{{ url_for('case_details', case_id=case.id) }}" class="btn btn-primary">View Details</a>
+                            {% if case.company and case.company.profile_photo %}
+                                <img src="{{ url_for('static', filename='uploads/' + case.company.profile_photo) }}" alt="Company Logo" class="company-logo">
+                            {% endif %}
+                            <p class="mt-2">Comments: {{ case.comment_count }}</p>
+                            <p>Supports: {{ case.support_count }}</p>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endblock %}
+    </div>
+
+    <!-- jQuery and Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Close flash messages when the close button is clicked
+            $('.alert').on('click', '.close', function() {
+                $(this).closest('.alert').fadeOut('slow', function() {
+                    $(this).remove();
+                });
+            });
+
+            // Automatically hide flash messages after 5 seconds
+            setTimeout(function() {
+                $('.alert').fadeOut('slow', function() {
+                    $(this).remove();
+                });
+            }, 5000);
+        });
+    </script>
+</body>
+</html>

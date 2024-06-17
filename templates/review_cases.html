@@ -1,0 +1,32 @@
+{% extends 'admin_base.html' %}
+
+{% block content %}
+<h2>Review Cases</h2>
+{% if cases %}
+    <ul>
+    {% for case in cases %}
+        <li>
+            <h3>{{ case.title }}</h3>
+            <p>Brand Name: {{ case.brand_name }}</p>
+            <p>Description: {{ case.description }}</p>
+            <p>Submitted by: {{ case.consumer.username }}</p>
+            <p>Status: {{ case.status }}</p>
+            <h4>Evidences:</h4>
+                {% if case.evidences %}
+                    <ul>
+                        {% for evidence in case.evidences %}
+                            <li><a href="{{ url_for('static', filename='uploads/' + evidence.filename) }}" target="_blank">{{ evidence.filename }}</a></li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>No evidences uploaded for this case.</p>
+                {% endif %}
+            <a href="{{ url_for('approve_case', case_id=case.id) }}">Approve</a>
+            <a href="{{ url_for('reject_case', case_id=case.id) }}">Reject</a>
+        </li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No pending cases.</p>
+{% endif %}
+{% endblock %}

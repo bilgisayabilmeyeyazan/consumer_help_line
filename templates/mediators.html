@@ -1,0 +1,19 @@
+{% extends 'index.html' %}
+
+{% block content %}
+    <h1>Mediators</h1>
+    <ul class="mediator-list">
+        {% for mediator in mediators %}
+            <li>
+                <a href="{{ url_for('mediator_details', username=mediator.username) }}">
+                    {% if mediator.profile_photo %}
+                        <img src="{{ url_for('static', filename='uploads/' + mediator.profile_photo) }}" alt="Profile Photo" class="mediator-photo">
+                    {% else %}
+                        <img src="{{ url_for('static', filename='deafult_mediator_photo-2.jpg') }}" alt="Default Profile Photo" class="mediator-photo">
+                    {% endif %}
+                    <span class="mediator-name">{{ mediator.username }}</span>
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
+{% endblock %}

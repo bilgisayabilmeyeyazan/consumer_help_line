@@ -1,0 +1,44 @@
+{% extends 'index.html' %}
+
+{% block content %}
+    <h1>Company Details</h1>
+
+    <div class="row">
+        <div class="col-md-4">
+            {% if company.profile_photo %}
+                <img src="{{ url_for('static', filename='uploads/' + company.profile_photo) }}" alt="Company Profile Photo" class="img-fluid">
+            {% else %}
+                <img src="{{ url_for('static', filename='default_profile.png') }}" alt="Default Profile Photo" class="img-fluid">
+            {% endif %}
+        </div>
+        <div class="col-md-8">
+            <h2>{{ company.username }}</h2>
+            <p>Email: {{ company.email }}</p>
+            {% if company.introduction %}
+                <p>{{ company.introduction }}</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <h3>Cases:</h3>
+    {% if cases %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for case in cases %}
+                    <tr>
+                        <td><a href="{{ url_for('case_details', case_id=case.id) }}">{{ case.title }}</a></td>
+                        <td>{{ case.status }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No cases found.</p>
+    {% endif %}
+{% endblock %}

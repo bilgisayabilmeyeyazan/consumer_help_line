@@ -1,0 +1,65 @@
+.mediator-list {
+    list-style-type: none;
+    padding: 0;
+}
+
+.mediator-list li {
+    display: inline-block;
+    margin: 10px;
+    text-align: center;
+}
+
+.mediator-photo {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.mediator-name {
+    display: block;
+    margin-top: 5px;
+}
+
+.mediator-profile {
+    text-align: center;
+}
+
+.mediator-profile-photo {
+    width: 200px;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 50%;
+    margin-bottom: 20px;
+}
+
+.profile-photo {
+    width: 200px;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+
+
+.navbar {
+    background-color: #010c80 !important;
+    color: white;
+}
+
+.navbar-light .navbar-nav .nav-link {
+    color: #010c80;
+    background-color: white;
+    border-radius: 15px; /* Adjust the border-radius as desired */
+    padding: 5px 30px; /* Adjust the padding as desired */
+}
+
+
+#flash-messages-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    max-width: 300px;
+    color: white;
+}

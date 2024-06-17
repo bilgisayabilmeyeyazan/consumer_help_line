@@ -1,0 +1,129 @@
+{% extends 'index.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Case Details</h2>
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">{{ case.title }}</h5>
+            <p class="card-text">{{ case.description }}</p>
+            <p>Brand Name: {{ case.brand_name }}</p>
+            <p>Submitted By: {{ case.consumer.username }}</p>
+            <p>Status: {{ case.status }}</p>
+
+            {% if case.consumer_message %}
+                <div class="card mt-3">
+                    <div class="card-body {% if case.message_color == 'green' %}bg-success{% else %}bg-danger{% endif %} text-white">
+                        <h5>Consumer Message:</h5>
+                        <p class="card-text">{{ case.consumer_message }}</p>
+                    </div>
+                </div>
+            {% endif %}
+
+            <h5>Evidence:</h5>
+            {% if evidence %}
+                <div class="row">
+                    {% for item in evidence %}
+                        <div class="col-md-4 mb-4">
+                            <div class="card">
+                                <img src="{{ url_for('static', filename='uploads/' + item.filename) }}" class="card-img-top" alt="Evidence">
+
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p>No evidence available.</p>
+            {% endif %}
+
+            <h5>Comments:</h5>
+            {% if case.comments %}
+                <div class="comments">
+                    <div class="company-comments">
+                        {% for comment in case.comments %}
+                            {% if comment.user.user_type == 'Company' and case.brand_name == comment.user.username %}
+                                <div class="card mb-3 bg-warning">
+                                    <div class="card-body">
+                                        <h5>Company Response</h5>
+                                        <p class="card-text">{{ comment.content }}</p>
+                                        <p class="card-subtitle mb-2 text-muted">By {{ comment.user.username }} (Company) - {{ comment.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                                    </div>
+                                </div>
+
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    <div class="user-comments">
+                        {% for comment in case.comments %}
+                            {% if case.brand_name != comment.user.username %}
+                                <div class="card mb-3">
+                                    <div class="card-body">
+                                        <p class="card-text">{{ comment.content }}</p>
+                                        <p class="card-subtitle mb-2 text-muted">By {{ comment.user.username }} - {{ comment.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                                        {% if 'logged_in' in session and comment.is_owner(session['user_id']) %}
+                                            <form action="{{ url_for('delete_comment', comment_id=comment.id) }}" method="POST" class="d-inline">
+                                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                            </form>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    {% if case.comments|length == 0 %}
+                        <p>No comments yet.</p>
+                    {% endif %}
+                </div>
+            {% else %}
+                <p>No comments yet.</p>
+            {% endif %}
+
+            {% if 'logged_in' in session %}
+                <form method="POST">
+                    <div class="form-group">
+                        <label for="content">Add a comment:</label>
+                        <textarea class="form-control" id="content" name="content" rows="3" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </form>
+            {% endif %}
+
+            {% if 'logged_in' in session and session['user_type'] == 'Company' and case.company_id == session['user_id'] and case.status != 'Resolved' and case.status != 'Closed' %}
+                <form method="POST" action="{{ url_for('case_details', case_id=case.id) }}">
+                    <button type="submit" name="resolve_case" class="btn btn-success mt-3">Mark as Resolved</button>
+                </form>
+            {% endif %}
+
+            {% if 'logged_in' in session and session['user_type'] == 'Consumer' and case.consumer_id == session['user_id'] and case.status == 'Resolved' and not case.consumer_message %}
+                <form method="POST" action="{{ url_for('case_details', case_id=case.id) }}">
+                    <div class="form-group">
+                        <label for="consumer_message">Add a message:</label>
+                        <textarea class="form-control" id="consumer_message" name="consumer_message" rows="3" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="message_color">Message color:</label>
+                        <select class="form-control" id="message_color" name="message_color">
+                            <option value="green">Green (Satisfied)</option>
+                            <option value="red">Red (Not Satisfied)</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit Message</button>
+                </form>
+            {% endif %}
+            {% if 'logged_in' in session and session['user_type'] == 'Company' and case.company_id == session['user_id'] and case.status != 'Resolved' and case.status != 'Closed' %}
+                <form method="POST" action="{{ url_for('case_details', case_id=case.id) }}">
+                    <button type="submit" name="resolve_case" class="btn btn-success mt-3">Mark as Resolved</button>
+                </form>
+            {% endif %}
+            {% if 'logged_in' in session and (session['user_type'] == 'Mediator' or session['user_type'] == 'Consumer') %}
+                <a href="{{ url_for('support_case', case_id=case.id) }}" class="btn btn-success mt-3">Support Case</a>
+            {% endif %}
+
+            <p class="mt-3">Total Comments: {{ case.comments|length }}</p>
+            <p>Total Supports: {{ case.supports|length }}</p>
+
+            <a href="{{ url_for('index') }}" class="btn btn-secondary mt-3">Back to Homepage</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

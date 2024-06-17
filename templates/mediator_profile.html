@@ -1,0 +1,24 @@
+{% extends 'index.html' %}
+
+{% block content %}
+    <h2>Mediator Profile</h2>
+    <form method="POST" action="{{ url_for('mediator_profile') }}" enctype="multipart/form-data">
+        <div class="form-group">
+            <label for="profile_photo">Profile Photo:</label>
+            <input type="file" class="form-control-file" id="profile_photo" name="profile_photo">
+        </div>
+        <div class="form-group">
+            <label for="biography">Biography:</label>
+            <textarea name="biography" id="biography" class="form-control" rows="5">{{ mediator.biography or '' }}</textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Update Profile</button>
+    </form>
+
+    <div class="mt-4">
+        {% if mediator.profile_photo %}
+            <img src="{{ url_for('static', filename='uploads/' + mediator.profile_photo) }}" alt="{{ mediator.username }}'s profile photo" class="profile-photo">
+        {% else %}
+            <img src="{{ url_for('static', filename='default_profile.jpg') }}" alt="Default profile photo" class="profile-photo">
+        {% endif %}
+    </div>
+{% endblock %}

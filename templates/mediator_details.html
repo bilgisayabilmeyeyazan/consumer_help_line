@@ -1,0 +1,16 @@
+{% extends 'index.html' %}
+
+{% block content %}
+    <div class="mediator-profile">
+        <h1>{{ mediator.username }}</h1>
+        {% if mediator.profile_photo %}
+            <img src="{{ url_for('static', filename='uploads/' + mediator.profile_photo) }}" alt="Profile Photo" class="mediator-profile-photo">
+        {% else %}
+            <img src="{{ url_for('static', filename='default_profile.png') }}" alt="Default Profile Photo" class="mediator-profile-photo">
+        {% endif %}
+        <p>Biography: {{ mediator.biography }}</p>
+        {% if mediator.biography %}
+            <p>{{ mediator.biography | replace('\n', '<br>') | safe }}</p>
+        {% endif %}
+    </div>
+{% endblock %}

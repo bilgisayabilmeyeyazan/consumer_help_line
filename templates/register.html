@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Register</title>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+    <style>
+        .panel {
+            border-color: #010c80;
+        }
+        .panel-body {
+            background-color: #010c80;
+            color: white;
+            }
+    </style>
+
+</head>
+<body {% if request.path == '/register' %}style="background-image: url('{{ url_for('static', filename='register_background.png') }}'); background-size: cover; background-repeat: no-repeat; background-position: center;"{% endif %}>
+<img src="{{ url_for('static', filename='logo.png') }}" alt="ConsumerHelpLine Logo" height="130">
+
+    <div class="container">
+        <div class="row" style="margin-top: 40px">
+            <div class="col-sm-6 col-sm-offset-0">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <h2>Register</h2>
+                        {% with messages = get_flashed_messages(with_categories=true) %}
+                            {% if messages %}
+                                {% for category, message in messages %}
+                                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        {% endwith %}
+                        <form method="POST" action="{{ url_for('register') }}">
+                            <div class="form-group">
+                                <label for="uname">Username:</label>
+                                <input type="text" name="uname" class="form-control" id="uname" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="mail">Email:</label>
+                                <input type="email" name="mail" class="form-control" id="mail" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="passw">Password:</label>
+                                <input type="password" name="passw" class="form-control" id="passw" required>
+                                <small class="form-text text-muted">Password must be at least 8 characters long and include uppercase letters, lowercase letters, numbers, and special characters.</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="confirm_passw">Confirm Password:</label>
+                                <input type="password" name="confirm_passw" class="form-control" id="confirm_passw" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="user_type">User Type:</label>
+                                <select name="user_type" class="form-control" id="user_type" required>
+                                    <option value="">Select User Type</option>
+                                    <option value="Consumer">Consumer</option>
+                                    <option value="Company">Company</option>
+                                    <option value="Mediator">Mediator</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Register</button>
+                        </form>
+                        <p style="margin-top: 20px;">Already have an account? <a href="{{ url_for('login') }}" style="color: #ffdf00">Login here</a>.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+</body>
+</html>

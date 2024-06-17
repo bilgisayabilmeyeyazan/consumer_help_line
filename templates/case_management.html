@@ -1,0 +1,74 @@
+{% extends 'index.html' %}
+
+{% block content %}
+    <h1>Case Management</h1>
+
+    <h2>Previous Cases</h2>
+    {% if cases %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Brand Name</th>
+                    <th>Title</th>
+                    <th>Status</th>
+                    <th>Consumer Message</th>
+                    <th>Created At</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for case in cases %}
+                    <tr>
+                        <td>{{ case.brand_name }}</td>
+                        <td>{{ case.title }}</td>
+                        <td>{{ case.status }}</td>
+                        <td>
+                            {% if case.consumer_message %}
+                                <div class="{% if case.message_color == 'green' %}bg-success{% else %}bg-danger{% endif %} text-white p-2">
+                                    {{ case.consumer_message }}
+                                </div>
+                            {% endif %}
+                        </td>
+                        <td>{{ case.created_at.strftime('%Y-%m-%d') }}</td>
+                        <td>{% if 'logged_in' in session and (session['user_type'] == 'Consumer' or session['user_type'] == 'Admin') %}
+                        {% if case.consumer_id == session['user_id'] or session['user_type'] == 'Admin' %}
+                            <form action="{{ url_for('delete_case', case_id=case.id) }}" method="POST" class="d-inline">
+                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                            </form>
+                        {% endif %}
+                    {% endif %}</td>
+                    </tr>
+
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No previous cases found.</p>
+    {% endif %}
+
+    <h2>Submit a New Case</h2>
+    <form action="{{ url_for('case_management') }}" method="POST" enctype="multipart/form-data">
+        <div class="form-group">
+            <label for="brand_name">Brand Name:</label>
+            <select name="company_id" class="form-control">
+                <option value="">Select a company (optional)</option>
+                {% for company in companies %}
+                    <option value="{{ company.id }}">{{ company.username }}</option>
+                {% endfor %}
+            </select>
+            <input type="text" name="brand_name" class="form-control" placeholder="Enter brand name if not in the list">
+        </div>
+        <div class="form-group">
+            <label for="title">Title:</label>
+            <input type="text" name="title" class="form-control" required>
+        </div>
+        <div class="form-group">
+            <label for="description">Description:</label>
+            <textarea name="description" class="form-control" rows="5" required></textarea>
+        </div>
+        <div class="form-group">
+            <label for="evidence">Evidence:</label>
+            <input type="file" name="evidence" class="form-control-file" multiple required>
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+{% endblock %}
